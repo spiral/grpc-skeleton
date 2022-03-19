@@ -18,7 +18,9 @@
   "require": {
     "php": "^8.0",
     "spiral/boot": "^2.9",
-    "spiral/console": "^2.9"
+    "spiral/files": "^2.9",
+    "spiral/console": "^2.9",
+    "spiral/roadrunner-cli": "^2.0"
   },
   "require-dev": {
     "mockery/mockery": "^1.5",
