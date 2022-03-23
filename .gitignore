@@ -10,3 +10,5 @@ phpunit.xml
 vendor
 node_modules
 .php-cs-fixer.cache
+protoc-gen-php-grpc
+protoc-gen-php-grpc.exe

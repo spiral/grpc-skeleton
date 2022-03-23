@@ -3,6 +3,8 @@
 
 declare(strict_types=1);
 
+use Spiral\Files\Files;
+use VendorName\Skeleton\Commands\CompileCommand;
 use VendorName\Skeleton\Commands\GetBinaryCommand;
 use Spiral\RoadRunner\Version;
 
@@ -54,5 +56,11 @@ require RR_COMPOSER_INSTALL;
 $app = new Symfony\Component\Console\Application('RoadRunner CLI', Version::current());
 
 $app->add(new GetBinaryCommand());
+$app->add(new CompileCommand(
+    new Files(),
+    include_once __DIR__ . '/services.php',
+    __DIR__.'/protoc-gen-php-grpc',
+    __DIR__.'/src/'
+));
 
 $app->run();
