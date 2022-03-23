@@ -20,9 +20,11 @@
     "spiral/boot": "^2.9",
     "spiral/files": "^2.9",
     "spiral/console": "^2.9",
+    "spiral/roadrunner-grpc": "^v1.5",
     "spiral/roadrunner-cli": "^2.0"
   },
   "require-dev": {
+    "nette/php-generator": "^3.6",
     "mockery/mockery": "^1.5",
     "phpunit/phpunit": "^9.5",
     "spiral/testing": "^1.0",

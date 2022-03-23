@@ -55,7 +55,14 @@ final class ProtoCompiler
         // copying files (using relative path and namespace)
         $result = [];
         foreach ($this->files->getFiles($tmpDir) as $file) {
-            $result[] = $this->copy($tmpDir, $file);
+            $result[] = $file = $this->copy($tmpDir, $file);
+
+            if (str_ends_with($file, 'Interface.php')) {
+                $this->files->write(
+                    str_replace('Interface.php', 'Client.php', $file),
+                    $this->generateClientService($file)
+                );
+            }
         }
 
         $this->files->deleteDirectory($tmpDir);
@@ -91,11 +98,49 @@ final class ProtoCompiler
      */
     private function getProtoFiles(string $protoFile): array
     {
-        return array_filter(
-            $this->files->getFiles(dirname($protoFile)),
-            function ($file) {
-                return strpos($file, '.proto') !== false;
-            }
-        );
+        return [$protoFile];
+    }
+
+    private function generateClientService(string $file): string
+    {
+        $file = \Nette\PhpGenerator\PhpFile::fromCode(file_get_contents($file));
+
+        $namespace = $file->getNamespaces()[array_key_first($file->getNamespaces())];
+        $class = $namespace->getClasses()[array_key_first($namespace->getClasses())];
+
+        $file = new \Nette\PhpGenerator\PhpFile;
+        $file->setStrictTypes();
+
+        $client = new \Nette\PhpGenerator\PhpNamespace($namespace->getName());
+        $file->addNamespace($client);
+        $clientClass = $client->addClass(str_replace('Interface', 'Client', $class->getName()));
+        $clientClass->addExtend(\Grpc\BaseStub::class);
+
+        foreach ($class->getMethods() as $method) {
+            $clientMethod = $clientClass->addMethod($method->getName());
+            $clientMethod->setParameters([$request = $method->getParameters()['in']]);
+            $clientMethod->addParameter('metadata')->setType('array')->setDefaultValue([]);
+            $clientMethod->addParameter('options')->setType('array')->setDefaultValue([]);
+
+            $clientMethod->addBody(
+                \sprintf(
+                    <<<'EOL'
+return $this->_simpleRequest(
+    '/%s',
+    $%s,
+    [%s::class, 'decode'],
+    $metadata,
+    $options
+);
+EOL,
+                    \str_replace('"', '', (string)$class->getConstants()['NAME']->getValue()) . '/' . $method->getName(),
+                    $request->getName(),
+                    $method->getReturnType()
+                )
+            );
+        }
+
+        $printer = new \Nette\PhpGenerator\Printer;
+        return (string) $printer->printFile($file);
     }
 }
