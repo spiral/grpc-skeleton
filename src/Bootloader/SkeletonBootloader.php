@@ -5,7 +5,8 @@ declare(strict_types=1);
 namespace VendorName\Skeleton\Bootloader;
 
 use Spiral\Boot\Bootloader\Bootloader;
-use Spiral\Core\Container;
+use Spiral\Config\ConfiguratorInterface;
+use VendorName\Skeleton\Config\GRPCServicesConfig;
 
 class SkeletonBootloader extends Bootloader
 {
@@ -13,11 +14,23 @@ class SkeletonBootloader extends Bootloader
     protected const SINGLETONS = [];
     protected const DEPENDENCIES = [];
 
-    public function boot(Container $container): void
-    {
+    public function __construct(
+        private ConfiguratorInterface $config
+    ) {
     }
 
-    public function start(Container $container): void
+    public function boot(): void
     {
+        $this->initGrpcServicesConfig();
+    }
+
+    private function initGrpcServicesConfig()
+    {
+        $this->config->setDefaults(
+            GRPCServicesConfig::CONFIG,
+            [
+                'services' => [],
+            ]
+        );
     }
 }

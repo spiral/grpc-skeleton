@@ -20,7 +20,7 @@
     "spiral/boot": "^2.9",
     "spiral/files": "^2.9",
     "spiral/console": "^2.9",
-    "spiral/roadrunner-grpc": "^v1.5",
+    "spiral/roadrunner-grpc": "^2.0",
     "spiral/roadrunner-cli": "^2.0"
   },
   "require-dev": {

@@ -51,8 +51,9 @@ final class CompileCommand extends Command
         }
 
         $compiler = new ProtoCompiler(
-            $this->getPath(),
+            $this->getRootPath(),
             $this->getNamespace(),
+            $this->getBootloaderPath(),
             $this->files,
             $binaryPath
         );
@@ -91,18 +92,26 @@ final class CompileCommand extends Command
     }
 
     /**
-     * Get or detect base source code path.
+     * Get base source code path.
      */
-    protected function getPath(): string
+    private function getRootPath(): string
     {
-        return __DIR__. '/../';
+        return __DIR__. '/../../';
     }
 
     /**
-     * Get or detect base namespace.
+     * Get base namespace.
      */
-    protected function getNamespace(): string
+    private function getNamespace(): string
     {
         return 'VendorName\\Skeleton';
+    }
+
+    /**
+     * Get bootloader path
+     */
+    private function getBootloaderPath(): string
+    {
+        return $this->getRootPath(). 'Bootloader/SkeletonBootloader.php';
     }
 }
