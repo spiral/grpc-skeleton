@@ -12,7 +12,6 @@ final class ProtoCompiler
     public function __construct(
         private string $basePath,
         private string $baseNamespace,
-        private string $bootloaderPath,
         private FilesInterface $files,
         private ?string $protocBinaryPath = null
     ) {
@@ -21,23 +20,23 @@ final class ProtoCompiler
     /**
      * @throws CompileException
      */
-    public function compile(string $protoFile): array
+    public function compile(string $protoFile): CompileResult
     {
         $tmpDir = $this->tmpDir();
 
-        exec(
-            sprintf(
+        \exec(
+            \sprintf(
                 'protoc %s --php_out=%s --php-grpc_out=%s -I %s %s 2>&1',
                 $this->protocBinaryPath ? '--plugin=' . $this->protocBinaryPath : '',
-                escapeshellarg($tmpDir),
-                escapeshellarg($tmpDir),
-                escapeshellarg($this->basePath),
-                implode(' ', array_map('escapeshellarg', $this->getProtoFiles($protoFile)))
+                \escapeshellarg($tmpDir),
+                \escapeshellarg($tmpDir),
+                \escapeshellarg(dirname($protoFile)),
+                \implode(' ', \array_map('escapeshellarg', $this->getProtoFiles($protoFile)))
             ),
             $output
         );
 
-        $output = trim(implode("\n", $output), "\n ,");
+        $output = \trim(\implode("\n", $output), "\n ,");
 
         if ($output !== '') {
             $this->files->deleteDirectory($tmpDir);
@@ -46,29 +45,31 @@ final class ProtoCompiler
 
         // copying files (using relative path and namespace)
         $result = [];
+        $services = [];
         foreach ($this->files->getFiles($tmpDir) as $file) {
             $result[] = $file = $this->copy($tmpDir, $file);
 
-            if (str_ends_with($file, 'Interface.php')) {
-                (new ServiceClientGenerator($this->files, $this->bootloaderPath))->generate($file);
+            if (\str_ends_with($file, 'Interface.php')) {
+                $services[] = (new ServiceClientGenerator($this->files))->generate($file);
             }
         }
 
         $this->files->deleteDirectory($tmpDir);
 
-        return $result;
+        return new CompileResult($result, $services);
     }
 
     private function copy(string $tmpDir, string $file): string
     {
-        $source = ltrim($this->files->relativePath($file, $tmpDir), '\\/');
-        if (strpos($source, $this->baseNamespace) === 0) {
-            $source = ltrim(substr($source, strlen($this->baseNamespace)), '\\/');
+        $startPath = \str_replace('\\', '/', $this->baseNamespace);
+        $source = \ltrim($this->files->relativePath($file, $tmpDir), '\\/');
+        if (\str_starts_with($source, $startPath)) {
+            $source = \ltrim(\substr($source, \strlen($startPath)), '\\/');
         }
 
-        $target = $this->files->normalizePath($this->basePath . '/src/' . $source);
+        $target = $this->files->normalizePath($this->basePath . '/' . $source);
 
-        $this->files->ensureDirectory(dirname($target));
+        $this->files->ensureDirectory(\dirname($target));
         $this->files->copy($file, $target);
 
         return $target;
@@ -76,8 +77,9 @@ final class ProtoCompiler
 
     private function tmpDir(): string
     {
-        $directory = sys_get_temp_dir() . '/' . spl_object_hash($this);
+        $directory = \sys_get_temp_dir() . '/' . \spl_object_hash($this);
         $this->files->ensureDirectory($directory);
+        $this->files->deleteDirectory($directory, true);
 
         return $this->files->normalizePath($directory, true);
     }

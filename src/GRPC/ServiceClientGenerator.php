@@ -4,38 +4,38 @@ declare(strict_types=1);
 
 namespace VendorName\Skeleton\GRPC;
 
-use Nette\PhpGenerator\ClassType;
-use Nette\PhpGenerator\Literal;
 use Nette\PhpGenerator\PhpFile;
+use Nette\PhpGenerator\PhpNamespace;
 use Nette\PhpGenerator\Printer;
 use Spiral\Files\FilesInterface;
-use VendorName\Skeleton\Config\GRPCServicesConfig;
+use Spiral\RoadRunner\GRPC\ContextInterface;
 
 final class ServiceClientGenerator
 {
     public function __construct(
-        private FilesInterface $files,
-        private string $bootloaderPath
+        private FilesInterface $files
     ) {
     }
 
-    public function generate(string $interfacePath): void
+    /**
+     * @param string $interfacePath
+     * @return array{0: ParsedClass, 1: ParsedClass}
+     */
+    public function generate(string $interfacePath): array
     {
-        $interfaceFile = PhpFile::fromCode($this->files->read($interfacePath));
-
-        $interfaceNamespace = $interfaceFile->getNamespaces()[array_key_first($interfaceFile->getNamespaces())];
-        $interfaceClass = $interfaceNamespace->getClasses()[array_key_first($interfaceNamespace->getClasses())];
+        $interface = new ParsedClass($this->files->read($interfacePath));
 
         $file = new PhpFile;
         $file->setStrictTypes();
 
-        $client = new \Nette\PhpGenerator\PhpNamespace($interfaceNamespace->getName());
+        $client = new PhpNamespace($interface->getNamespace());
         $file->addNamespace($client);
-        $clientClass = $client->addClass(str_replace('Interface', 'Client', $interfaceClass->getName()));
-        $clientClass->addExtend(\Grpc\BaseStub::class);
-        $clientClass->addImplement($interfaceClass->getName());
+        $clientClass = $client->addClass(str_replace('Interface', 'Client', $interface->getClassName()));
 
-        foreach ($interfaceClass->getMethods() as $method) {
+        $clientClass->addExtend(\Grpc\BaseStub::class);
+        $clientClass->addImplement($interface->getClassNameWithNamespace());
+
+        foreach ($interface->getMethods() as $method) {
             $clientMethod = $clientClass->addMethod($method->getName());
             $clientMethod->setParameters($method->getParameters());
             $clientMethod->setReturnType($method->getReturnType());
@@ -47,8 +47,8 @@ final class ServiceClientGenerator
     '/'.self::NAME.'/%s',
     $in,
     [%s::class, 'decode'],
-    $metadata,
-    $options
+    (array) $ctx->getValue('metadata'),
+    (array) $ctx->getValue('options'),
 )->wait();
 
 return $response;
@@ -59,55 +59,13 @@ EOL,
             );
         }
 
-        $file->addUse($interfaceClass->getName());
+        $client->addUse(ContextInterface::class);
 
         $this->files->write(
             str_replace('Interface.php', 'Client.php', $interfacePath),
-            (new Printer)->printFile($file)
+            $client = (new Printer)->printFile($file)
         );
 
-        $this->updateBootloader($interfaceClass, $clientClass);
-    }
-
-    private function updateBootloader(
-        ClassType $interfaceClass,
-        ClassType $serviceClass
-    ) {
-        $bootloader = PhpFile::fromCode($this->files->read($this->bootloaderPath));
-        $bootloaderNamespace = $bootloader->getNamespaces()[array_key_first($bootloader->getNamespaces())];
-        $bootloaderClass = $bootloaderNamespace->getClasses()[array_key_first($bootloaderNamespace->getClasses())];
-
-        $singletons = (array)$bootloaderClass->getConstants()['SINGLETONS'];
-        if (!array_key_exists($interfaceClass->getName(), $singletons)) {
-            $singletons[$interfaceClass->getName()] = [
-                new Literal('static::class'),
-                $methodName = 'init' . $serviceClass->getName(),
-            ];
-
-            $method = $bootloaderClass->addMethod($methodName);
-            $method->addParameter('config')->setType(GRPCServicesConfig::class);
-
-            $method->addBody(
-                \sprintf(
-                    <<<'EOL'
-return new %s(
-    $config->get(%s::class)['host'],
-    [
-        'credentials' => \Grpc\ChannelCredentials::createInsecure(),
-    ]
-);
-EOL,
-                    $serviceClass->getName(),
-                    $serviceClass->getName()
-                )
-            );
-
-            $method->setReturnType($interfaceClass->getName());
-        }
-
-        $this->files->write(
-            $this->bootloaderPath,
-            (new Printer)->printFile($bootloader)
-        );
+        return [$interface, new ParsedClass($client)];
     }
 }

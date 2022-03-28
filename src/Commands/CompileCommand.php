@@ -10,8 +10,12 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use VendorName\Skeleton\GRPC\BootloaderGenerator;
 use VendorName\Skeleton\GRPC\ProtoCompiler;
 
+/**
+ * @internal
+ */
 final class CompileCommand extends Command
 {
     private FilesInterface $files;
@@ -44,7 +48,7 @@ final class CompileCommand extends Command
 
         $binaryPath = $this->binaryPath;
 
-        if ($binaryPath !== null && ! file_exists($binaryPath)) {
+        if ($binaryPath !== null && ! $this->files->exists($binaryPath)) {
             $io->error(\sprintf('PHP Server plugin binary `%s` not found. ', $binaryPath));
 
             return self::FAILURE;
@@ -53,18 +57,19 @@ final class CompileCommand extends Command
         $compiler = new ProtoCompiler(
             $this->getRootPath(),
             $this->getNamespace(),
-            $this->getBootloaderPath(),
             $this->files,
             $binaryPath
         );
 
+        $services = [];
+
         foreach ($this->services as $protoFile) {
-            if (! file_exists($protoFile)) {
+            if (! $this->files->exists($protoFile)) {
                 $io->error(\sprintf('Proto file `%s` not found.', $protoFile));
                 continue;
             }
 
-            $io->info(\sprintf('Compiling <fg=cyan>`%s`</fg=cyan>:\n', $protoFile));
+            $io->writeln(\sprintf('Compiling <fg=cyan>`%s`</fg=cyan>:\n', $protoFile));
 
             try {
                 $result = $compiler->compile($protoFile);
@@ -73,7 +78,7 @@ final class CompileCommand extends Command
                 continue;
             }
 
-            if ($result === []) {
+            if ($result->getFiles() === []) {
                 $io->info(\sprintf('No files were generated for `%s`.\n', $protoFile));
                 continue;
             }
@@ -86,6 +91,14 @@ final class CompileCommand extends Command
                     Color::RESET
                 ));
             }
+
+            foreach ($result->getServices() as $service) {
+                $services[] = $service;
+            }
+        }
+
+        if ($services !== []) {
+            (new BootloaderGenerator($this->files, $this->getBootloaderPath()))->generate($services);
         }
 
         return self::SUCCESS;
@@ -96,7 +109,7 @@ final class CompileCommand extends Command
      */
     private function getRootPath(): string
     {
-        return __DIR__. '/../../';
+        return __DIR__. '/../';
     }
 
     /**
