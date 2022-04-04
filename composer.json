@@ -17,11 +17,16 @@
   ],
   "require": {
     "php": "^8.0",
+    "ext-grpc": "*",
+    "grpc/grpc": "^1.42",
     "spiral/boot": "^2.9",
+    "spiral/hmvc": "^2.9",
     "spiral/files": "^2.9",
     "spiral/console": "^2.9",
+    "spiral/auth": "^2.9",
     "spiral/roadrunner-grpc": "^2.0",
-    "spiral/roadrunner-cli": "^2.0"
+    "spiral/roadrunner-cli": "^2.0",
+    "ruvents/spiral-jwt": "^0.1"
   },
   "require-dev": {
     "nette/php-generator": "^3.6",

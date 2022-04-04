@@ -2,8 +2,11 @@
 
 declare(strict_types=1);
 
-namespace VendorName\Skeleton\GRPC;
+namespace VendorName\Skeleton\Generators;
 
+/**
+ * @internal
+ */
 final class CompileResult
 {
     public function __construct(

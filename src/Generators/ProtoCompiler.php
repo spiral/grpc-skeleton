@@ -2,11 +2,14 @@
 
 declare(strict_types=1);
 
-namespace VendorName\Skeleton\GRPC;
+namespace VendorName\Skeleton\Generators;
 
 use Spiral\Files\FilesInterface;
 use VendorName\Skeleton\GRPC\Exception\CompileException;
 
+/**
+ * @internal
+ */
 final class ProtoCompiler
 {
     public function __construct(
@@ -26,12 +29,13 @@ final class ProtoCompiler
 
         \exec(
             \sprintf(
-                'protoc %s --php_out=%s --php-grpc_out=%s -I %s %s 2>&1',
+                'protoc %s --php_out=%s --php-grpc_out=%s -I=%s -I=%s %s 2>&1',
                 $this->protocBinaryPath ? '--plugin=' . $this->protocBinaryPath : '',
                 \escapeshellarg($tmpDir),
                 \escapeshellarg($tmpDir),
+                \escapeshellarg(realpath($this->basePath.'../proto')),
                 \escapeshellarg(dirname($protoFile)),
-                \implode(' ', \array_map('escapeshellarg', $this->getProtoFiles($protoFile)))
+                \implode(' ', array_map('escapeshellarg', $this->getProtoFiles($protoFile)))
             ),
             $output
         );
@@ -50,7 +54,9 @@ final class ProtoCompiler
             $result[] = $file = $this->copy($tmpDir, $file);
 
             if (\str_ends_with($file, 'Interface.php')) {
-                $services[] = (new ServiceClientGenerator($this->files))->generate($file);
+                $service = $services[] = (new ServiceClientGenerator($this->files))->generate($file);
+
+                // (new ServiceActionGenerator($this->files, dirname($file)))->generate($service[0], $service[1]);
             }
         }
 
@@ -86,9 +92,18 @@ final class ProtoCompiler
 
     /**
      * Include all proto files from the directory.
+     *
+     * @param string $protoFile
+     *
+     * @return array
      */
     private function getProtoFiles(string $protoFile): array
     {
-        return [$protoFile];
+        return \array_filter(
+            $this->files->getFiles(\dirname($protoFile)),
+            function ($file) {
+                return \strpos($file, '.proto') !== false;
+            }
+        );
     }
 }

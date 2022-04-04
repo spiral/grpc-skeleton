@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace VendorName\Skeleton\GRPC;
+namespace VendorName\Skeleton\Generators;
 
 use Nette\PhpGenerator\ClassType;
 use Nette\PhpGenerator\Method;
@@ -10,6 +10,9 @@ use Nette\PhpGenerator\PhpFile;
 use Nette\PhpGenerator\PhpNamespace;
 use Nette\PhpGenerator\Printer;
 
+/**
+ * @internal
+ */
 final class ParsedClass
 {
     private PhpFile $file;
@@ -20,9 +23,10 @@ final class ParsedClass
     {
         $this->file = PhpFile::fromCode($content);
 
-        $this->namespace = $this->file->getNamespaces()[array_key_first($this->file->getNamespaces())];
-        $this->class = $this->namespace->getClasses()[array_key_first($this->namespace->getClasses())];
+        $this->namespace = $this->file->getNamespaces()[\array_key_first($this->file->getNamespaces())];
+        $this->class = $this->namespace->getClasses()[\array_key_first($this->namespace->getClasses())];
     }
+
 
     public function addUse(string $class): void
     {

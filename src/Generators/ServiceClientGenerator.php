@@ -2,14 +2,18 @@
 
 declare(strict_types=1);
 
-namespace VendorName\Skeleton\GRPC;
+namespace VendorName\Skeleton\Generators;
 
 use Nette\PhpGenerator\PhpFile;
 use Nette\PhpGenerator\PhpNamespace;
 use Nette\PhpGenerator\Printer;
+use Spiral\Core\InterceptableCore;
 use Spiral\Files\FilesInterface;
 use Spiral\RoadRunner\GRPC\ContextInterface;
 
+/**
+ * @internal
+ */
 final class ServiceClientGenerator
 {
     public function __construct(
@@ -30,10 +34,14 @@ final class ServiceClientGenerator
 
         $client = new PhpNamespace($interface->getNamespace());
         $file->addNamespace($client);
-        $clientClass = $client->addClass(str_replace('Interface', 'Client', $interface->getClassName()));
+        $clientClass = $client->addClass(\str_replace('Interface', 'Client', $interface->getClassName()));
 
-        $clientClass->addExtend(\Grpc\BaseStub::class);
         $clientClass->addImplement($interface->getClassNameWithNamespace());
+
+        $constructor = $clientClass->addMethod('__construct');
+        $constructor->addPromotedParameter('core')
+            ->setType(InterceptableCore::class)
+            ->setPrivate();
 
         foreach ($interface->getMethods() as $method) {
             $clientMethod = $clientClass->addMethod($method->getName());
@@ -43,26 +51,26 @@ final class ServiceClientGenerator
             $clientMethod->addBody(
                 \sprintf(
                     <<<'EOL'
-[$response, $status] = $this->_simpleRequest(
-    '/'.self::NAME.'/%s',
-    $in,
-    [%s::class, 'decode'],
-    (array) $ctx->getValue('metadata'),
-    (array) $ctx->getValue('options'),
-)->wait();
+[$response, $status] = $this->core->callAction(%s::class, '/'.self::NAME.'/%s', [
+    'in' => $in,
+    'ctx' => $ctx,
+    'responseClass' => %s::class,
+]);
 
 return $response;
 EOL,
+                    $interface->getClassName(),
                     $method->getName(),
                     $clientMethod->getReturnType()
                 )
             );
         }
 
-        $client->addUse(ContextInterface::class);
+        $client->addUse(ContextInterface::class)
+            ->addUse(InterceptableCore::class);
 
         $this->files->write(
-            str_replace('Interface.php', 'Client.php', $interfacePath),
+            \str_replace('Interface.php', 'Client.php', $interfacePath),
             $client = (new Printer)->printFile($file)
         );
 

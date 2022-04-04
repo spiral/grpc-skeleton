@@ -5,38 +5,61 @@ declare(strict_types=1);
 namespace VendorName\Skeleton\Bootloader;
 
 use Spiral\Boot\Bootloader\Bootloader;
+use Spiral\Boot\EnvironmentInterface;
 use Spiral\Config\ConfiguratorInterface;
 use Spiral\Core\Container;
+use Spiral\Core\InterceptableCore;
+use Spiral\RoadRunner\GRPC\InvokerInterface;
+use VendorName\Skeleton\GRPC\Interceptors\ValidateRequestResponseInterceptor;
+use VendorName\Skeleton\GRPC\InvokerCore;
+use VendorName\Skeleton\GRPC\Invoker;
 use VendorName\Skeleton\Config\GRPCServicesConfig;
 
 class SkeletonBootloader extends Bootloader
 {
-	public function __construct(private ConfiguratorInterface $config)
-	{
-	}
+    protected const DEPENDENCIES = [
+        \Ruvents\SpiralJwt\JwtAuthBootloader::class,
+    ];
 
-	public function boot(): void
-	{
-		$this->initGrpcServicesConfig();
-	}
+    public function __construct(
+        private ConfiguratorInterface $config
+    ) {
+    }
 
-	public function start(Container $container): void
-	{
-		$this->initServices($container);
-	}
 
-	private function initGrpcServicesConfig()
-	{
-		$this->config->setDefaults(
-		    GRPCServicesConfig::CONFIG,
-		    [
-		        'services' => [],
-		    ]
-		);
-	}
+    public function boot(EnvironmentInterface $env): void
+    {
+        $this->initConfig($env);
+    }
 
-	private function initServices(Container $container): void
-	{
+    public function start(Container $container): void
+    {
+        $container->bindSingleton(
+            InvokerInterface::class,
+            static function () use ($container): InvokerInterface {
+                $core = new InterceptableCore($container->get(InvokerCore::class));
+                $core->addInterceptor(new ValidateRequestResponseInterceptor());
 
-	}
+                return new Invoker($container, $core);
+            }
+        );
+
+        $this->initServices($container);
+    }
+
+
+    private function initConfig(EnvironmentInterface $env)
+    {
+        $this->config->setDefaults(
+            GRPCServicesConfig::CONFIG,
+            [
+                'services' => [],
+            ]
+        );
+    }
+
+
+    private function initServices(Container $container): void
+    {
+    }
 }

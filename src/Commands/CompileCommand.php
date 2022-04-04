@@ -10,11 +10,13 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
-use VendorName\Skeleton\GRPC\BootloaderGenerator;
-use VendorName\Skeleton\GRPC\ProtoCompiler;
+use VendorName\Skeleton\Generators\BootloaderGenerator;
+use VendorName\Skeleton\Generators\ProtoCompiler;
 
 /**
  * @internal
+ *
+ * proto files compilation command.
  */
 final class CompileCommand extends Command
 {
@@ -69,7 +71,7 @@ final class CompileCommand extends Command
                 continue;
             }
 
-            $io->writeln(\sprintf('Compiling <fg=cyan>`%s`</fg=cyan>:\n', $protoFile));
+            $io->writeln(\sprintf('Compiling <fg=cyan>`%s`</fg=cyan>:', $protoFile));
 
             try {
                 $result = $compiler->compile($protoFile);
@@ -79,18 +81,20 @@ final class CompileCommand extends Command
             }
 
             if ($result->getFiles() === []) {
-                $io->info(\sprintf('No files were generated for `%s`.\n', $protoFile));
+                $io->info(\sprintf('No files were generated for `%s`.', $protoFile));
                 continue;
             }
 
-            foreach ($result as $file) {
+            foreach ($result->getFiles() as $file) {
                 $io->writeln(\sprintf(
-                    "<fg=green>•</fg=green> %s%s%s\n",
+                    "<fg=green>•</fg=green> %s%s%s",
                     Color::LIGHT_WHITE,
                     $this->files->relativePath($file, $this->root),
                     Color::RESET
                 ));
             }
+
+            $io->writeln('');
 
             foreach ($result->getServices() as $service) {
                 $services[] = $service;
@@ -113,7 +117,7 @@ final class CompileCommand extends Command
     }
 
     /**
-     * Get base namespace.
+     * Get base namespace of package.
      */
     private function getNamespace(): string
     {

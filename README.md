@@ -22,8 +22,6 @@ Make sure that your server is configured with following PHP version and extensio
 - PHP 8.0+
 - Spiral framework 2.9+
 
-
- 
 ## Installation
 
 You can install the package via composer:
@@ -41,7 +39,7 @@ protected const LOAD = [
 ];
 ```
 
-> Note: if you are using [`spiral-packages/discoverer`](https://github.com/spiral-packages/discoverer), 
+> Note: if you are using [`spiral-packages/discoverer`](https://github.com/spiral-packages/discoverer),
 > you don't need to register bootloader by yourself.
 
 ## Testing

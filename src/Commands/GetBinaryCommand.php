@@ -23,6 +23,8 @@ use Symfony\Component\Console\Style\StyleInterface;
 
 /**
  * @internal
+ *
+ * protoc-gen-php-grpc file download command.
  */
 class GetBinaryCommand extends Command
 {
