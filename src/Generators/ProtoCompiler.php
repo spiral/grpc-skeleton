@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace VendorName\Skeleton\Generators;
 
 use Spiral\Files\FilesInterface;
-use VendorName\Skeleton\GRPC\Exception\CompileException;
+use VendorName\Skeleton\Generators\Exception\CompileException;
 
 /**
  * @internal

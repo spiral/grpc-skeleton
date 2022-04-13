@@ -36,7 +36,7 @@ final class RequestContext implements ContextInterface
      */
     public function getToken(string $key = 'token'): ?string
     {
-        return $this->getValue('metadata', [])[$key] ?? null;
+        return $this->getValue('metadata', [])[$key][0] ?? null;
     }
 
     /**

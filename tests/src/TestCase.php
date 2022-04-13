@@ -2,7 +2,7 @@
 
 namespace VendorName\Skeleton\Tests;
 
-class TestCase extends \Spiral\Testing\TestCase
+abstract class TestCase extends \Spiral\Testing\TestCase
 {
     public function rootDirectory(): string
     {
@@ -13,7 +13,7 @@ class TestCase extends \Spiral\Testing\TestCase
     {
         return [
             \Spiral\Boot\Bootloader\ConfigurationBootloader::class,
-            \VendorName\Skeleton\SkeletonBootloader::class,
+            \VendorName\Skeleton\Bootloader\SkeletonBootloader::class,
             // ...
         ];
     }

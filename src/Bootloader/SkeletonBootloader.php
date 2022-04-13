@@ -37,7 +37,9 @@ class SkeletonBootloader extends Bootloader
         $container->bindSingleton(
             InvokerInterface::class,
             static function () use ($container): InvokerInterface {
-                $core = new InterceptableCore($container->get(InvokerCore::class));
+                $core = new InterceptableCore(
+                    new InvokerCore(new \Spiral\RoadRunner\GRPC\Invoker())
+                );
                 $core->addInterceptor(new ValidateRequestResponseInterceptor());
 
                 return new Invoker($container, $core);
@@ -47,7 +49,7 @@ class SkeletonBootloader extends Bootloader
         $this->initServices($container);
     }
 
-
+    // Do not edit this method. It will be replaced by the code generator.
     private function initConfig(EnvironmentInterface $env)
     {
         $this->config->setDefaults(
@@ -58,7 +60,7 @@ class SkeletonBootloader extends Bootloader
         );
     }
 
-
+    // Do not edit this method. It will be replaced by the code generator.
     private function initServices(Container $container): void
     {
     }
