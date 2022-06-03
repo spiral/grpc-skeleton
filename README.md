@@ -159,6 +159,12 @@ return [
 ./rr compile-proto-files
 ```
 
+or via docker
+
+```
+docker-compose up
+```
+
 The compiler will generate php files in your project according php namespaces you set in `proto` files and also register
 services in the package bootloader.
 
@@ -474,6 +480,15 @@ class UsersController
     }
 }
 ```
+
+## PHPStorm setting
+
+You may to install [Protobuf](https://plugins.jetbrains.com/plugin/16422-protobuf) plugin for PHPStorm and then mark
+directory `proto` as `Source root` and will be activated autocomplete.
+
+![screen](https://git.spiralscout.com/cpq/grpc-shared-package/uploads/cc3288063a869794d08907a1441a7a39/screen.png)
+
+
 
 ## License
 

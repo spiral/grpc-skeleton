@@ -1,0 +1,12 @@
+version: '3.5'
+
+services:
+  builder:
+    image: butschster/php8.1-grpc:latest
+    volumes:
+      - .:/app
+    command: >
+      bash -c "composer i
+      && [ -f ./protoc-gen-php-grpc ] || ./rr get-protoc-binary
+      && chmod +x ./protoc-gen-php-grpc
+      && ./rr compile-proto-files"
