@@ -14,7 +14,7 @@ class ValidateRequestResponseInterceptor implements CoreInterceptorInterface
     /**
      * Validate response status.
      */
-    public function process(string $controller, string $action, array $parameters, CoreInterface $core)
+    public function process(string $controller, string $action, array $parameters, CoreInterface $core): mixed
     {
         [$response, $status] = $core->callAction($controller, $action, $parameters);
 

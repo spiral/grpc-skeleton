@@ -17,7 +17,7 @@ final class ContextInterceptor implements CoreInterceptorInterface
      *
      * @param array{service: ServiceInterface, ctx: ContextInterface, input: string} $parameters
      */
-    public function process(string $controller, string $action, array $parameters, CoreInterface $core)
+    public function process(string $controller, string $action, array $parameters, CoreInterface $core): mixed
     {
         $parameters['ctx'] = new RequestContext($parameters['ctx']->getValues());
 

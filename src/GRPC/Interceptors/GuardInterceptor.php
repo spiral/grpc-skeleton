@@ -19,8 +19,8 @@ use VendorName\Skeleton\GRPC\RequestContext;
 final class GuardInterceptor implements CoreInterceptorInterface
 {
     public function __construct(
-        private ReaderInterface $reader,
-        private TokenStorageInterface $tokenStorage
+        private readonly ReaderInterface $reader,
+        private readonly TokenStorageInterface $tokenStorage
     ) {
     }
 
@@ -29,7 +29,7 @@ final class GuardInterceptor implements CoreInterceptorInterface
      *
      * @param array{service: ServiceInterface, ctx: ContextInterface, input: string} $parameters
      */
-    public function process(string $controller, string $action, array $parameters, CoreInterface $core)
+    public function process(string $controller, string $action, array $parameters, CoreInterface $core): mixed
     {
         $refl = new \ReflectionClass($controller);
         /** @var Guarded|null $guard */

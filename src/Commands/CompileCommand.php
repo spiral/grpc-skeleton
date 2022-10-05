@@ -20,23 +20,13 @@ use VendorName\Skeleton\Generators\ProtoCompiler;
  */
 final class CompileCommand extends Command
 {
-    private FilesInterface $files;
-    private string $root;
-    private string $binaryPath;
-    private array $services;
-
     public function __construct(
-        FilesInterface $files,
-        array $services,
-        string $binaryPath,
-        string $root
+        private readonly FilesInterface $files,
+        private readonly array $services,
+        private readonly string $binaryPath,
+        private string $root
     ) {
         parent::__construct('compile-proto-files');
-
-        $this->files = $files;
-        $this->root = $root;
-        $this->binaryPath = $binaryPath;
-        $this->services = $services;
     }
 
     public function getDescription(): string

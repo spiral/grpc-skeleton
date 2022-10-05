@@ -10,8 +10,8 @@ namespace VendorName\Skeleton\Generators;
 final class CompileResult
 {
     public function __construct(
-        private array $files,
-        private array $services
+        private readonly array $files,
+        private readonly array $services
     ) {
     }
 

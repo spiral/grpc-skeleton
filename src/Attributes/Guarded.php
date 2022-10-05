@@ -11,15 +11,7 @@ use Doctrine\Common\Annotations\Annotation\NamedArgumentConstructor;
 class Guarded
 {
     public function __construct(
-        private string $tokenField = 'token'
+        public readonly string $tokenField = 'token'
     ) {
-    }
-
-    /**
-     * Get the key of token field
-     */
-    public function getTokenField(): string
-    {
-        return $this->tokenField;
     }
 }

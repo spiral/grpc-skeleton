@@ -18,8 +18,8 @@ use VendorName\Skeleton\GRPC\Interceptors\InjectableInterceptor;
 final class Invoker implements InvokerInterface
 {
     public function __construct(
-        private Container $container,
-        private InterceptableCore $core
+        private readonly Container $container,
+        private readonly InterceptableCore $core
     ) {
     }
 

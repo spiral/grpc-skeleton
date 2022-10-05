@@ -17,8 +17,8 @@ use VendorName\Skeleton\GRPC\RequestContext;
 final class ServiceActionGenerator
 {
     public function __construct(
-        private FilesInterface $files,
-        private string $basePath
+        private readonly FilesInterface $files,
+        private readonly string $basePath
     ) {
     }
 

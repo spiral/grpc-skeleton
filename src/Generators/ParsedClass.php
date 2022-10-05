@@ -15,9 +15,9 @@ use Nette\PhpGenerator\Printer;
  */
 final class ParsedClass
 {
-    private PhpFile $file;
-    private PhpNamespace $namespace;
-    private ClassType $class;
+    private readonly PhpFile $file;
+    private readonly PhpNamespace $namespace;
+    private readonly ClassType $class;
 
     public function __construct(string $content)
     {

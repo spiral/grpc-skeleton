@@ -19,6 +19,18 @@ final class RequestContext implements ContextInterface
     /**
      * Add value to the metadata.
      */
+    public function withTelemetry(array $context): ContextInterface
+    {
+
+        $metadata = $this->getValue('metadata', []);
+        $metadata['telemetry'] = $context;
+
+        return $this->withMetadata($metadata);
+    }
+
+    /**
+     * Add value to the metadata.
+     */
     public function withToken(?string $token, string $key = 'token'): ContextInterface
     {
         if ($token === null) {
@@ -69,7 +81,7 @@ final class RequestContext implements ContextInterface
     /**
      * Get value from the context.
      */
-    public function getValue(string $key, $default = null)
+    public function getValue(string $key, $default = null): mixed
     {
         return $this->values[$key] ?? $default;
     }

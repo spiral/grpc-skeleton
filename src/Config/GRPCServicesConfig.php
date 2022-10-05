@@ -13,7 +13,7 @@ final class GRPCServicesConfig extends InjectableConfig
     /**
      * @var array<class-string, array{host: string}>
      */
-    protected $config = [
+    protected array $config = [
         'services' => [],
     ];
 

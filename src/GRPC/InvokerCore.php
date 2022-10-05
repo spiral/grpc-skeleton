@@ -13,7 +13,7 @@ use Spiral\RoadRunner\GRPC\ServiceInterface;
 class InvokerCore implements CoreInterface
 {
     public function __construct(
-        private InvokerInterface $invoker,
+        private readonly InvokerInterface $invoker,
     ) {
     }
 

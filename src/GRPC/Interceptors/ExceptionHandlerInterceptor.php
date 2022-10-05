@@ -14,7 +14,7 @@ final class ExceptionHandlerInterceptor implements CoreInterceptorInterface
     /**
      * Handle exceptions.
      */
-    public function process(string $controller, string $action, array $parameters, CoreInterface $core)
+    public function process(string $controller, string $action, array $parameters, CoreInterface $core): mixed
     {
         try {
             return $core->callAction($controller, $action, $parameters);

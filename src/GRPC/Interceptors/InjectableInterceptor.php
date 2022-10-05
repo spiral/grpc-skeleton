@@ -15,16 +15,16 @@ use VendorName\Skeleton\Attributes\InjectInterceptor;
 final class InjectableInterceptor implements CoreInterceptorInterface
 {
     public function __construct(
-        private Container $container,
-        private ReaderInterface $reader,
-        private InterceptableCore $core
+        private readonly Container $container,
+        private readonly ReaderInterface $reader,
+        private readonly InterceptableCore $core
     ) {
     }
 
     /**
      * Inject service method interceptors into core.
      */
-    public function process(string $controller, string $action, array $parameters, CoreInterface $core)
+    public function process(string $controller, string $action, array $parameters, CoreInterface $core): mixed
     {
         $refl = new ReflectionClass($controller);
 

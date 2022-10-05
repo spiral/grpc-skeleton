@@ -13,10 +13,10 @@ use VendorName\Skeleton\Generators\Exception\CompileException;
 final class ProtoCompiler
 {
     public function __construct(
-        private string $basePath,
-        private string $baseNamespace,
-        private FilesInterface $files,
-        private ?string $protocBinaryPath = null
+        private readonly string $basePath,
+        private readonly string $baseNamespace,
+        private readonly FilesInterface $files,
+        private readonly ?string $protocBinaryPath = null
     ) {
     }
 

@@ -17,7 +17,7 @@ use Spiral\RoadRunner\GRPC\ContextInterface;
 final class ServiceClientGenerator
 {
     public function __construct(
-        private FilesInterface $files
+        private readonly FilesInterface $files
     ) {
     }
 

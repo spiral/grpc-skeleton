@@ -22,17 +22,17 @@ class SkeletonBootloader extends Bootloader
     ];
 
     public function __construct(
-        private ConfiguratorInterface $config
+        private readonly ConfiguratorInterface $config
     ) {
     }
 
 
-    public function boot(EnvironmentInterface $env): void
+    public function init(EnvironmentInterface $env): void
     {
         $this->initConfig($env);
     }
 
-    public function start(Container $container): void
+    public function boot(Container $container): void
     {
         $container->bindSingleton(
             InvokerInterface::class,

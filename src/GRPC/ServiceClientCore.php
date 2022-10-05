@@ -8,7 +8,7 @@ use Spiral\Core\CoreInterface;
 
 class ServiceClientCore extends \Grpc\BaseStub implements CoreInterface
 {
-    public function callAction(string $controller, string $action, array $parameters = [])
+    public function callAction(string $controller, string $action, array $parameters = []): mixed
     {
         /** @var RequestContext $ctx */
         $ctx = $parameters['ctx'];

@@ -11,15 +11,7 @@ use Doctrine\Common\Annotations\Annotation\NamedArgumentConstructor;
 final class InjectInterceptor
 {
     public function __construct(
-        private string $class,
+        public readonly string $class,
     ) {
-    }
-
-    /**
-     * Get injectable class name.
-     */
-    public function getClass(): string
-    {
-        return $this->class;
     }
 }
