@@ -21,17 +21,16 @@ final class Invoker implements InvokerInterface
         private readonly Container $container,
         private readonly InterceptableCore $core
     ) {
-    }
-
-    public function invoke(ServiceInterface $service, Method $method, ContextInterface $ctx, ?string $input): string
-    {
         $this->core->addInterceptor($this->container->get(ExceptionHandlerInterceptor::class));
         $this->core->addInterceptor($this->container->get(ContextInterceptor::class));
         $this->core->addInterceptor($this->container->get(GuardInterceptor::class));
         $this->core->addInterceptor($this->container->make(InjectableInterceptor::class, [
             'core' => $this->core
         ]));
+    }
 
+    public function invoke(ServiceInterface $service, Method $method, ContextInterface $ctx, ?string $input): string
+    {
         return $this->core->callAction($service::class, $method->getName(), [
             'service' => $service,
             'ctx' => $ctx,
