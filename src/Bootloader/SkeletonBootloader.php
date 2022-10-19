@@ -10,17 +10,13 @@ use Spiral\Config\ConfiguratorInterface;
 use Spiral\Core\Container;
 use Spiral\Core\InterceptableCore;
 use Spiral\RoadRunner\GRPC\InvokerInterface;
-use VendorName\Skeleton\GRPC\Interceptors\ValidateRequestResponseInterceptor;
+use Spiral\Telemetry\TracerInterface;
 use VendorName\Skeleton\GRPC\InvokerCore;
 use VendorName\Skeleton\GRPC\Invoker;
 use VendorName\Skeleton\Config\GRPCServicesConfig;
 
 class SkeletonBootloader extends Bootloader
 {
-    protected const DEPENDENCIES = [
-        \Ruvents\SpiralJwt\JwtAuthBootloader::class,
-    ];
-
     public function __construct(
         private readonly ConfiguratorInterface $config
     ) {
@@ -36,13 +32,10 @@ class SkeletonBootloader extends Bootloader
     {
         $container->bindSingleton(
             InvokerInterface::class,
-            static function () use ($container): InvokerInterface {
-                $core = new InterceptableCore(
-                    new InvokerCore(new \Spiral\RoadRunner\GRPC\Invoker())
-                );
-                $core->addInterceptor(new ValidateRequestResponseInterceptor());
-
-                return new Invoker($container, $core);
+            static function (TracerInterface $tracer) use ($container): InvokerInterface {
+                return new Invoker($container, new InterceptableCore(
+                    new InvokerCore(new \Spiral\RoadRunner\GRPC\Invoker(), $tracer)
+                ));
             }
         );
 

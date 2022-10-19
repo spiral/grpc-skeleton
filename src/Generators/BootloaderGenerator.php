@@ -4,10 +4,13 @@ declare(strict_types=1);
 
 namespace VendorName\Skeleton\Generators;
 
+use Psr\Container\ContainerInterface;
 use Nette\PhpGenerator\Method;
 use Spiral\Core\InterceptableCore;
 use Spiral\Files\FilesInterface;
+use VendorName\Skeleton\GRPC\Interceptors\InjectTelemetryIntoContextInterceptor;
 use VendorName\Skeleton\Config\GRPCServicesConfig;
+use VendorName\Skeleton\GRPC\Interceptors\ValidateRequestResponseInterceptor;
 use VendorName\Skeleton\GRPC\ServiceClientCore;
 
 /**
@@ -96,12 +99,22 @@ EOL,
                 <<<'EOL'
 $container->bindSingleton(
     %s::class,
-    static fn(GRPCServicesConfig $config): %s =>  new %s(
-        new InterceptableCore(new ServiceClientCore(
-            $config->getService(%s::class)['host'],
-            ['credentials' => $credentials]
-        ))
-    )
+    static function (
+        GRPCServicesConfig $config,
+        ContainerInterface $container,
+    ) use ($credentials): %s {
+        $core = new InterceptableCore(
+            new ServiceClientCore(
+                $config->getService(%s::class)['host'],
+                ['credentials' => $credentials]
+            )
+        );
+
+        $core->addInterceptor($container->get(InjectTelemetryIntoContextInterceptor::class));
+        $core->addInterceptor($this->container->get(ValidateRequestResponseInterceptor::class));
+
+        return new %s($core);
+    }
 );
 
 EOL,
@@ -116,5 +129,8 @@ EOL,
         $this->bootloader->addUse($client->getClassNameWithNamespace());
         $this->bootloader->addUse(ServiceClientCore::class);
         $this->bootloader->addUse(InterceptableCore::class);
+        $this->bootloader->addUse(ContainerInterface::class);
+        $this->bootloader->addUse(InjectTelemetryIntoContextInterceptor::class);
+        $this->bootloader->addUse(ValidateRequestResponseInterceptor::class);
     }
 }

@@ -14,6 +14,7 @@ use VendorName\Skeleton\GRPC\Interceptors\ContextInterceptor;
 use VendorName\Skeleton\GRPC\Interceptors\ExceptionHandlerInterceptor;
 use VendorName\Skeleton\GRPC\Interceptors\GuardInterceptor;
 use VendorName\Skeleton\GRPC\Interceptors\InjectableInterceptor;
+use VendorName\Skeleton\GRPC\Interceptors\InjectTelemetryFromContextInterceptor;
 
 final class Invoker implements InvokerInterface
 {
@@ -23,6 +24,7 @@ final class Invoker implements InvokerInterface
     ) {
         $this->core->addInterceptor($this->container->get(ExceptionHandlerInterceptor::class));
         $this->core->addInterceptor($this->container->get(ContextInterceptor::class));
+        $this->core->addInterceptor($this->container->get(InjectTelemetryFromContextInterceptor::class));
         $this->core->addInterceptor($this->container->get(GuardInterceptor::class));
         $this->core->addInterceptor($this->container->make(InjectableInterceptor::class, [
             'core' => $this->core

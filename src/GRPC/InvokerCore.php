@@ -9,11 +9,13 @@ use Spiral\RoadRunner\GRPC\ContextInterface;
 use Spiral\RoadRunner\GRPC\InvokerInterface;
 use Spiral\RoadRunner\GRPC\Method;
 use Spiral\RoadRunner\GRPC\ServiceInterface;
+use Spiral\Telemetry\TracerInterface;
 
 class InvokerCore implements CoreInterface
 {
     public function __construct(
         private readonly InvokerInterface $invoker,
+        private readonly TracerInterface $tracer
     ) {
     }
 
@@ -22,11 +24,15 @@ class InvokerCore implements CoreInterface
      */
     public function callAction(string $controller, string $action, array $parameters = [])
     {
-        return $this->invoker->invoke(
-            $parameters['service'],
-            $parameters['method'],
-            $parameters['ctx'],
-            $parameters['input'],
+        return $this->tracer->trace(
+            name: \sprintf('GRPC Service %s:%s', $controller, $action),
+            callback: fn() => $this->invoker->invoke(
+                $parameters['service'],
+                $parameters['method'],
+                $parameters['ctx'],
+                $parameters['input'],
+            ),
+            attributes: \array_keys($parameters)
         );
     }
 }
