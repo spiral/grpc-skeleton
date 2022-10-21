@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Spiral\OpenTelemetryShared\GRPC\Interceptors;
+namespace VendorName\Skeleton\GRPC\Interceptors;
 
 use Psr\Container\ContainerInterface;
 use Spiral\Core\CoreInterceptorInterface;
-use Spiral\OpenTelemetryShared\GRPC\RequestContext;
+use VendorName\Skeleton\GRPC\RequestContext;
 use Spiral\RoadRunner\GRPC\ContextInterface;
 use Spiral\RoadRunner\GRPC\ResponseHeaders;
 use Spiral\Telemetry\TraceKind;

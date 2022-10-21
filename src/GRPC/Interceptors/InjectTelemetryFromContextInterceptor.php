@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Spiral\OpenTelemetryShared\GRPC\Interceptors;
+namespace VendorName\Skeleton\GRPC\Interceptors;
 
 use Spiral\Core\CoreInterceptorInterface;
 use Spiral\Core\ScopeInterface;
-use Spiral\OpenTelemetryShared\GRPC\RequestContext;
+use VendorName\Skeleton\GRPC\RequestContext;
 use Spiral\Telemetry\TraceKind;
 use Spiral\Telemetry\TracerFactoryInterface;
 use Spiral\Core\CoreInterface;
